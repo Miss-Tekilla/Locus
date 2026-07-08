@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12-Недельный Год — Дашборд</title>
+<style>
+  :root {
+    --bg: #eef1f6;
+    --bg2: #e4e9f2;
+    --glass: rgba(255, 255, 255, 0.55);
+    --glass-strong: rgba(255, 255, 255, 0.72);
+    --glass-soft: rgba(255, 255, 255, 0.35);
+    --glass-border: rgba(255, 255, 255, 0.7);
+    --glass-border-strong: rgba(255, 255, 255, 0.9);
+    --shadow: 0 8px 32px rgba(31, 38, 70, 0.08);
+    --shadow-hover: 0 12px 40px rgba(31, 38, 70, 0.14);
+    --text: #1e2540;
+    --text-mid: #4a5375;
+    --text-dim: #7a829e;
+    --accent: #6366f1;
+    --accent-soft: #818cf855;
+    --accent2: #a855f7;
+    --green: #10b981;
+    --green-soft: rgba(16, 185, 129, 0.15);
+    --red: #ef4444;
+    --red-soft: rgba(239, 68, 68, 0.12);
+    --yellow: #f59e0b;
+    --yellow-soft: rgba(245, 158, 11, 0.15);
+    --blue: #3b82f6;
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { min-height: 100vh; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+    position: relative;
+    overflow-x: hidden;
+    /* Мягкий градиентный фон */
+    background:
+      radial-gradient(1200px 800px at 10% -10%, #dbe6ff 0%, transparent 55%),
+      radial-gradient(900px 700px at 110% 10%, #ffe5f1 0%, transparent 55%),
+      radial-gradient(900px 700px at 50% 120%, #e0f2fe 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    background-attachment: fixed;
+  }
+
+  /* Декоративные "blobs" */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    z-index: -1;
+    pointer-events: none;
+  }
+  body::before {
+    width: 420px; height: 420px;
+    background: linear-gradient(135deg, #c7d2fe, #fbcfe8);
+    top: -120px; left: -80px;
+  }
+  body::after {
+    width: 500px; height: 500px;
+    background: linear-gradient(135deg, #a5f3fc, #ddd6fe);
+    bottom: -160px; right: -120px;
+  }
+
+  h1, h2, h3 { font-weight: 700; letter-spacing: -0.01em; }
+
+  /* Glass mixin-like base */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.6);
+    border-radius: var(--radius);
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 36px 32px 32px;
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #4338ca 0%, #7c3aed 50%, #db2777 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .header .subtitle {
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+  }
+  .cycle-dates {
+    color: var(--text-mid);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .cycle-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .cycle-controls > div { text-align: left; }
+  .cycle-controls label {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .cycle-controls input, .cycle-controls select {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin-top: 4px;
+    display: block;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    outline: none;
+    transition: all 0.2s;
+  }
+  .cycle-controls input:focus, .cycle-controls select:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+
+  .auto-week-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  .auto-week-badge.completed {
+    background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.25));
+    border-color: rgba(16,185,129,0.4);
+    color: #047857;
+  }
+  .auto-week-badge.celebration {
+    background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(236,72,153,0.18));
+    border-color: rgba(245,158,11,0.4);
+    color: #92400e;
+  }
+
+  /* ── Days info ── */
+  .days-info {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .days-info span {
+    font-size: 0.82rem;
+    color: var(--text-mid);
+  }
+  .days-info strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* ── Top actions ── */
+  .top-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Week nav ── */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    padding: 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow);
+    border-radius: 60px;
+  }
+  .week-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: 1.5px solid rgba(148,163,194,0.3);
+    background: rgba(255,255,255,0.5);
+    color: var(--text-mid);
+    position: relative;
+  }
+  .week-dot:hover {
+    border-color: var(--accent);
+    transform: scale(1.08);
+    background: rgba(255,255,255,0.85);
+  }
+  .week-dot.current {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+  }
+  .week-dot.completed {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.12);
+    color: #047857;
+  }
+  .week-dot.completed::after {
+    content: '✓';
+    position: absolute;
+    top: -4px; right: -4px;
+    font-size: 0.55rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 4px rgba(16,185,129,0.4);
+  }
+  .week-dot.week-end {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    border-color: rgba(245,158,11,0.5);
+  }
+  .week-dot.week-end.current {
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    border-color: #f59e0b;
+    color: #fff;
+  }
+  .week-connector {
+    width: 10px; height: 2px;
+    background: rgba(148,163,194,0.3);
+    flex-shrink: 0;
+  }
+  .week-connector.done { background: linear-gradient(90deg, var(--green), #059669); }
+
+  /* ── Stats ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    padding: 20px;
+    text-align: center;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    transition: all 0.25s;
+  }
+  .stat-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .stat-card .label {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .stat-card .value.green { color: #047857; }
+  .stat-card .value.accent { color: var(--accent); }
+  .stat-card .value.yellow { color: #b45309; }
+  .stat-card .value.blue { color: #1d4ed8; }
+  .stat-card .value.red { color: var(--red); }
+
+  /* ── Progress bar ── */
+  .cycle-progress {
+    margin-bottom: 28px;
+    padding: 20px;
+  }
+  .cycle-progress h3 {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .progress-bar-outer {
+    height: 26px;
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 13px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+  }
+  .progress-bar-inner.complete {
+    background: linear-gradient(90deg, #10b981, #f59e0b, #ec4899);
+  }
+  .progress-bar-text {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+
+  /* ── Goals ── */
+  .goals-section { margin-bottom: 28px; }
+  .goals-section > h2 {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    color: var(--text);
+  }
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .goal-card {
+    padding: 22px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    transition: all 0.25s;
+  }
+  .goal-card:hover {
+    border-color: var(--glass-border-strong);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+  .goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .goal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+    color: var(--text);
+  }
+  .goal-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .goal-actions button {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    color: var(--text-mid);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .goal-actions button:hover {
+    background: rgba(255,255,255,0.85);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .goal-metric {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    flex-wrap: wrap;
+  }
+  .goal-metric input {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    padding: 5px 8px;
+    border-radius: 8px;
+    width: 70px;
+    text-align: center;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .goal-metric input:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.85);
+  }
+  .goal-progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .goal-progress-bar .fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s;
+  }
+  .goal-tactics-preview {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  .goal-card[data-color="0"] .fill { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+  .goal-card[data-color="1"] .fill { background: linear-gradient(90deg, #10b981, #059669); }
+  .goal-card[data-color="2"] .fill { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+  .goal-card[data-color="3"] .fill { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .goal-card[data-color="4"] .fill { background: linear-gradient(90deg, #ec4899, #db2777); }
+
+  /* ── Week section ── */
+  .week-section {
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .week-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .week-section .subtitle {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+  .tactic-group { margin-bottom: 22px; }
+  .tactic-group-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+  .tactic-group-title .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .tactic-list { list-style: none; }
+  .tactic-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    transition: all 0.2s;
+  }
+  .tactic-item:hover {
+    background: rgba(255,255,255,0.8);
+    border-color: var(--glass-border-strong);
+  }
+  .tactic-item input[type="checkbox"] {
+    width: 20px; height: 20px;
+    accent-color: var(--green);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tactic-item .tactic-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .tactic-item .tactic-text.done {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+  .tactic-item .delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    padding: 2px 6px;
+  }
+  .tactic-item:hover .delete-btn { opacity: 1; }
+  .tactic-item .delete-btn:hover { color: var(--red); }
+  .add-tactic {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .add-tactic input {
+    flex: 1;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .add-tactic input:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.8);
+  }
+  .add-tactic button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+    transition: all 0.2s;
+  }
+  .add-tactic button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+  }
+
+  .week-score {
+    margin-top: 18px;
+    padding: 18px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .week-score .score-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .week-score .score-label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── History ── */
+  .history-section {
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .history-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .heatmap {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+  }
+  .heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.25s;
+    min-height: 56px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .heatmap-cell:hover {
+    transform: scale(1.06);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+  }
+  .heatmap-cell .week-num { font-size: 0.6rem; color: var(--text-dim); margin-bottom: 2px; }
+  .heatmap-cell .score { font-size: 0.9rem; }
+  .heatmap-cell.high {
+    background: rgba(16,185,129,0.18);
+    color: #047857;
+    border-color: rgba(16,185,129,0.5);
+  }
+  .heatmap-cell.medium {
+    background: rgba(245,158,11,0.18);
+    color: #b45309;
+    border-color: rgba(245,158,11,0.5);
+  }
+  .heatmap-cell.low {
+    background: rgba(239,68,68,0.15);
+    color: #b91c1c;
+    border-color: rgba(239,68,68,0.4);
+  }
+  .heatmap-cell.empty { color: var(--text-dim); opacity: 0.6; }
+  .heatmap-cell.celebration {
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(236,72,153,0.2));
+    border-color: rgba(245,158,11,0.5);
+    color: #b45309;
+    border-radius: 14px;
+  }
+  .heatmap-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-mid);
+    flex-wrap: wrap;
+  }
+  .heatmap-legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+  }
+
+  /* ── Celebration ── */
+  .celebration-screen {
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid rgba(245,158,11,0.4);
+    background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,240,200,0.4));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+  }
+  .celebration-screen::before {
+    content: '🎉';
+    position: absolute;
+    top: 20px; left: 30px;
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+  .celebration-screen::after {
+    content: '🏆';
+    position: absolute;
+    top: 20px; right: 30px;
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+  .celebration-screen h2 {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .celebration-screen .sub {
+    color: var(--text-mid);
+    margin-bottom: 24px;
+  }
+  .final-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .final-stat {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--glass-border);
+    padding: 18px 14px;
+    border-radius: var(--radius);
+  }
+  .final-stat .val { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; }
+  .final-stat .lbl { font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+  .reflection-box {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin: 24px 0;
+    text-align: left;
+  }
+  .reflection-box h3 { margin-bottom: 14px; font-size: 1rem; }
+  .reflection-box textarea {
+    width: 100%;
+    min-height: 80px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+  .reflection-box textarea:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .reflection-box .q-label {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 5px;
+    font-weight: 700;
+  }
+
+  /* ── Archive ── */
+  .archive-section {
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .archive-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .archive-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .archive-item .name { font-weight: 700; color: var(--text); }
+  .archive-item .dates { color: var(--text-mid); font-size: 0.85rem; }
+  .archive-item .score-badge {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+  .score-badge.high { background: var(--green-soft); color: #047857; border-color: rgba(16,185,129,0.3); }
+  .score-badge.medium { background: var(--yellow-soft); color: #b45309; border-color: rgba(245,158,11,0.3); }
+  .score-badge.low { background: var(--red-soft); color: #b91c1c; border-color: rgba(239,68,68,0.3); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.55);
+    color: var(--text);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .btn:hover {
+    background: rgba(255,255,255,0.85);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(99,102,241,0.45);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  }
+  .btn-success:hover { box-shadow: 0 6px 16px rgba(16,185,129,0.45); }
+  .btn-danger {
+    border-color: rgba(239,68,68,0.4);
+    color: #b91c1c;
+    background: rgba(239,68,68,0.08);
+  }
+  .btn-danger:hover {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.6);
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    border: none;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(245,158,11,0.35);
+  }
+  .btn-gold:hover { box-shadow: 0 6px 18px rgba(245,158,11,0.5); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 38, 70, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid var(--glass-border-strong);
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(31, 38, 70, 0.25);
+  }
+  .modal h2 { margin-bottom: 18px; color: var(--text); }
+  .modal .form-group { margin-bottom: 16px; }
+  .modal .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .modal .form-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .modal .form-group input:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .header h1 { font-size: 1.5rem; }
+    .goals-grid { grid-template-columns: 1fr; }
+    .heatmap { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); }
+    .week-dot { width: 30px; height: 30px; font-size: 0.65rem; }
+    .week-dot.week-end { width: 34px; height: 34px; }
+    .week-connector { width: 6px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .celebration-screen { padding: 26px 20px; }
+    .celebration-screen::before, .celebration-screen::after { display: none; }
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148,163,194,0.3);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,194,0.5); }
+
+  ::selection { background: var(--accent-soft); }
+</style>
+</head>
+<body>
+
+<div class="header glass">
+  <h1>🎯 12-Недельный Год</h1>
+  <p class="subtitle">Гибкая система еженедельного отслеживания целей</p>
+  <div class="cycle-dates" id="cycleDates"></div>
+  <div class="days-info" id="daysInfo"></div>
+  <div id="autoWeekBadge"></div>
+  <div class="cycle-controls">
+    <div>
+      <label>Название цикла:</label>
+      <input type="text" id="cycleName" placeholder="Лето 2026">
+    </div>
+    <div>
+      <label>Дата начала:</label>
+      <input type="date" id="cycleStart">
+    </div>
+    <div>
+      <label>Дата окончания:</label>
+      <input type="date" id="cycleEnd">
+    </div>
+    <div>
+      <label>Ручной режим:</label>
+      <select id="currentWeek">
+        <option value="auto">Авто</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="top-actions">
+  <button class="btn" onclick="exportData()">📥 Экспорт</button>
+  <button class="btn" onclick="importData()">📤 Импорт</button>
+  <button class="btn btn-danger" onclick="resetAll()">🗑 Сброс</button>
+</div>
+
+<div class="cycle-progress glass">
+  <h3>📅 Прогресс цикла</h3>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="cycleProgressBar" style="width:0%"></div>
+    <span class="progress-bar-text" id="cycleProgressText">0%</span>
+  </div>
+</div>
+
+<div class="week-nav" id="weekNav"></div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="value accent" id="statWeek">1</div>
+    <div class="label">Текущая неделя</div>
+  </div>
+  <div class="stat-card">
+    <div class="value green" id="statScore">—</div>
+    <div class="label">Score (неделя)</div>
+  </div>
+  <div class="stat-card">
+    <div class="value yellow" id="statAvgScore">—</div>
+    <div class="label">Средний Score</div>
+  </div>
+  <div class="stat-card">
+    <div class="value blue" id="statTactics">0</div>
+    <div class="label">Тактик выполнено</div>
+  </div>
+  <div class="stat-card">
+    <div class="value" id="statDaysLeft" style="color:var(--blue)">—</div>
+    <div class="label">Дней осталось</div>
+  </div>
+</div>
+
+<div id="celebrationScreen" style="display:none"></div>
+
+<div class="goals-section" id="goalsSection">
+  <h2>🎯 Цели цикла <button class="btn btn-primary" onclick="openAddGoal()" style="margin-left:auto;font-size:0.8rem;padding:6px 14px;">+ Добавить цель</button></h2>
+  <div class="goals-grid" id="goalsGrid"></div>
+</div>
+
+<div class="week-section glass" id="weekSection">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <h2 id="weekTitle">Неделя 1 — Тактики</h2>
+      <p class="subtitle" style="margin:0">Отмечайте выполненные тактики. Цель — 85%+ выполнения!</p>
+    </div>
+    <button class="btn btn-gold" onclick="earlyFinish()" style="font-size:0.8rem;padding:8px 14px;">🏆 Завершить досрочно</button>
+  </div>
+  <div id="tacticsContainer"></div>
+  <div class="week-score">
+    <div>
+      <div class="score-label">Execution Score за неделю</div>
+      <div class="score-value" id="weekScoreValue">—</div>
+    </div>
+    <div style="text-align:right">
+      <div class="score-label">Выполнено тактик</div>
+      <div class="score-value" id="weekTacticsCount" style="font-size:1.2rem">0 / 0</div>
+    </div>
+  </div>
+</div>
+
+<div class="history-section glass">
+  <h2>📊 Execution Score по неделям</h2>
+  <div class="heatmap" id="heatmap"></div>
+  <div class="heatmap-legend">
+    <span><span class="legend-dot" style="background:var(--green-soft);border:1px solid rgba(16,185,129,0.5)"></span> 85%+</span>
+    <span><span class="legend-dot" style="background:var(--yellow-soft);border:1px solid rgba(245,158,11,0.5)"></span> 70-84%</span>
+    <span><span class="legend-dot" style="background:var(--red-soft);border:1px solid rgba(239,68,68,0.4)"></span> &lt;70%</span>
+    <span><span class="legend-dot" style="background:rgba(255,255,255,0.5);border:1px solid var(--glass-border)"></span> Нет данных</span>
+    <span><span class="legend-dot" style="background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(236,72,153,0.2));border:1px solid rgba(245,158,11,0.5);border-radius:6px"></span> 🎉 Празднование</span>
+  </div>
+</div>
+
+<div class="archive-section glass" id="archiveSection" style="display:none">
+  <h2>📁 Архив циклов</h2>
+  <div id="archiveList"></div>
+</div>
+
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <h2 id="goalModalTitle">Добавить цель</h2>
+    <div class="form-group">
+      <label>Название цели</label>
+      <input type="text" id="goalNameInput" placeholder="Например: Запустить проект X">
+    </div>
+    <div class="form-group">
+      <label>Метрика (опционально)</label>
+      <input type="text" id="goalMetricInput" placeholder="Например: заработано ₽">
+    </div>
+    <div class="form-group">
+      <label>Целевое значение</label>
+      <input type="number" id="goalTargetInput" placeholder="100">
+    </div>
+    <div class="form-group">
+      <label>Текущее значение</label>
+      <input type="number" id="goalCurrentInput" placeholder="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeGoalModal()">Отмена</button>
+      <button class="btn btn-primary" id="goalModalSave" onclick="saveGoal()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Гибкая система циклов • Данные сохраняются в вашем браузере</p>
+</div>
+
+<input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+const GOAL_COLORS = ['#6366f1', '#10b981', '#3b82f6', '#f59e0b', '#ec4899'];
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    cycleName: '',
+    cycleStart: new Date().toISOString().slice(0, 10),
+    cycleEnd: addDays(new Date(), 83).toISOString().slice(0, 10),
+    currentWeek: 'auto',
+    goals: [],
+    tactics: {},
+    reflections: {},
+    archive: [],
+    manualOverride: false,
+    earlyFinish: false
+  };
+}
+
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('12weekyear_v3'));
+    if (s && s.goals) {
+      if (!s.archive) s.archive = [];
+      if (!s.reflections) s.reflections = {};
+      return s;
+    }
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem('12weekyear_v3', JSON.stringify(state));
+}
+
+function getTotalWeeks() {
+  const start = new Date(state.cycleStart);
+  const end = new Date(state.cycleEnd);
+  start.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+  const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+  return Math.ceil(totalDays / 7);
+}
+
+function getAutoWeek() {
+  const start = new Date(state.cycleStart);
+  const now = new Date();
+  start.setHours(0,0,0,0);
+  now.setHours(0,0,0,0);
+  const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  const weekNum = Math.floor(diffDays / 7) + 1;
+  const totalWeeks = getTotalWeeks();
+  if (weekNum < 1) return 1;
+  if (weekNum > totalWeeks) return totalWeeks + 1;
+  return weekNum;
+}
+
+function getCurrentWeek() {
+  if (state.earlyFinish) return getTotalWeeks() + 1;
+  if (state.manualOverride && state.currentWeek !== 'auto') {
+    return parseInt(state.currentWeek);
+  }
+  return getAutoWeek();
+}
+
+function getDaysLeft() {
+  const end = new Date(state.cycleEnd);
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+  return Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+}
+
+function getDaysPassed() {
+  const start = new Date(state.cycleStart);
+  const now = new Date();
+  start.setHours(0,0,0,0);
+  now.setHours(0,0,0,0);
+  return Math.max(0, Math.floor((now - start) / (1000 * 60 * 60 * 24)));
+}
+
+function getDaysTotal() {
+  const start = new Date(state.cycleStart);
+  const end = new Date(state.cycleEnd);
+  start.setHours(0,0,0,0);
+  end.setHours(0,0,0,0);
+  return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+}
+
+function formatDate(date) {
+  const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  const d = new Date(date);
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function formatDateFull(date) {
+  const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const d = new Date(date);
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function getWeekDates(weekNum) {
+  const start = new Date(state.cycleStart);
+  const weekStart = new Date(start);
+  weekStart.setDate(weekStart.getDate() + (weekNum - 1) * 7);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const cycleEnd = new Date(state.cycleEnd);
+  if (weekEnd > cycleEnd) weekEnd.setTime(cycleEnd.getTime());
+  return { start: weekStart, end: weekEnd };
+}
+
+function init() {
+  document.getElementById('cycleName').value = state.cycleName;
+  document.getElementById('cycleStart').value = state.cycleStart;
+  document.getElementById('cycleEnd').value = state.cycleEnd;
+
+  updateWeekSelect();
+
+  document.getElementById('cycleName').addEventListener('change', e => {
+    state.cycleName = e.target.value;
+    saveState();
+    renderAll();
+  });
+  document.getElementById('cycleStart').addEventListener('change', e => {
+    state.cycleStart = e.target.value;
+    saveState();
+    updateWeekSelect();
+    renderAll();
+  });
+  document.getElementById('cycleEnd').addEventListener('change', e => {
+    state.cycleEnd = e.target.value;
+    saveState();
+    updateWeekSelect();
+    renderAll();
+  });
+  document.getElementById('currentWeek').addEventListener('change', e => {
+    if (e.target.value === 'auto') {
+      state.manualOverride = false;
+      state.currentWeek = 'auto';
+    } else {
+      state.manualOverride = true;
+      state.currentWeek = e.target.value;
+    }
+    saveState();
+    renderAll();
+  });
+
+  renderAll();
+}
+
+function updateWeekSelect() {
+  const weekSelect = document.getElementById('currentWeek');
+  const totalWeeks = getTotalWeeks();
+  weekSelect.innerHTML = '<option value="auto">Авто (по дате)</option>';
+  for (let i = 1; i <= totalWeeks + 1; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i <= totalWeeks ? `Неделя ${i}` : '🎉 Празднование';
+    if (state.currentWeek == i && state.manualOverride) opt.selected = true;
+    weekSelect.appendChild(opt);
+  }
+}
+
+function renderAll() {
+  const week = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+  const isCelebration = week > totalWeeks;
+
+  renderHeaderInfo();
+  renderWeekNav();
+  renderStats();
+  renderCycleProgress();
+  renderGoals();
+
+  if (isCelebration) {
+    renderCelebration();
+    document.getElementById('celebrationScreen').style.display = 'block';
+    document.getElementById('goalsSection').style.display = 'none';
+    document.getElementById('weekSection').style.display = 'none';
+  } else {
+    document.getElementById('celebrationScreen').style.display = 'none';
+    document.getElementById('goalsSection').style.display = 'block';
+    document.getElementById('weekSection').style.display = 'block';
+    renderWeekTactics();
+  }
+
+  renderHeatmap();
+  renderArchive();
+}
+
+function renderHeaderInfo() {
+  const endDate = new Date(state.cycleEnd);
+  const totalWeeks = getTotalWeeks();
+  document.getElementById('cycleDates').textContent =
+    `${formatDateFull(state.cycleStart)} — ${formatDateFull(endDate)}`;
+
+  const daysLeft = getDaysLeft();
+  const daysPassed = getDaysPassed();
+  const daysTotal = getDaysTotal();
+  document.getElementById('daysInfo').innerHTML = `
+    <span>Прошло: <strong>${daysPassed} дн.</strong></span>
+    <span>Осталось: <strong>${daysLeft} дн.</strong></span>
+    <span>Итого: <strong>${daysTotal} дн. (${totalWeeks} недель)</strong></span>
+  `;
+
+  const autoWeek = getAutoWeek();
+  const badge = document.getElementById('autoWeekBadge');
+  if (state.earlyFinish) {
+    badge.innerHTML = '<div class="auto-week-badge celebration">🏆 Цикл завершён досрочно!</div>';
+  } else if (autoWeek > totalWeeks) {
+    badge.innerHTML = '<div class="auto-week-badge celebration">🎉 Цикл завершён! Время праздновать!</div>';
+  } else if (autoWeek === totalWeeks) {
+    badge.innerHTML = `<div class="auto-week-badge completed">🏆 Финальная неделя!</div>`;
+  } else {
+    badge.innerHTML = `<div class="auto-week-badge">Неделя ${autoWeek} из ${totalWeeks}</div>`;
+  }
+}
+
+function renderWeekNav() {
+  const nav = document.getElementById('weekNav');
+  const currentWeek = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+  nav.innerHTML = '';
+
+  for (let w = 1; w <= totalWeeks + 1; w++) {
+    if (w > 1) {
+      const conn = document.createElement('div');
+      conn.className = 'week-connector' + (w <= currentWeek ? ' done' : '');
+      nav.appendChild(conn);
+    }
+    const dot = document.createElement('div');
+    if (w === totalWeeks + 1) {
+      dot.className = 'week-dot week-end';
+      dot.innerHTML = '🎉';
+    } else {
+      dot.className = 'week-dot';
+      dot.textContent = w;
+    }
+    if (w === currentWeek) dot.classList.add('current');
+    else if (w < currentWeek) dot.classList.add('completed');
+    dot.onclick = () => {
+      state.manualOverride = true;
+      state.currentWeek = w;
+      state.earlyFinish = (w === totalWeeks + 1);
+      updateWeekSelect();
+      saveState();
+      renderAll();
+    };
+    nav.appendChild(dot);
+  }
+}
+
+function renderStats() {
+  const week = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+  document.getElementById('statWeek').textContent = week <= totalWeeks ? week : `${totalWeeks} ✓`;
+
+  const weekScore = calcWeekScore(week);
+  const wsEl = document.getElementById('statScore');
+  wsEl.textContent = weekScore !== null ? weekScore + '%' : '—';
+  wsEl.className = 'value ' + (weekScore === null ? '' : weekScore >= 85 ? 'green' : weekScore >= 70 ? 'yellow' : 'accent');
+
+  const avgScore = calcAvgScore();
+  const avgEl = document.getElementById('statAvgScore');
+  avgEl.textContent = avgScore !== null ? avgScore + '%' : '—';
+
+  let totalDone = 0;
+  Object.values(state.tactics).forEach(arr => {
+    arr.forEach(t => { if (t.done) totalDone++; });
+  });
+  document.getElementById('statTactics').textContent = totalDone;
+
+  const daysLeft = getDaysLeft();
+  const dlEl = document.getElementById('statDaysLeft');
+  dlEl.textContent = daysLeft;
+  dlEl.style.color = daysLeft === 0 ? '#b45309' : daysLeft <= 7 ? '#b91c1c' : '#1d4ed8';
+}
+
+function calcWeekScore(week) {
+  let total = 0, done = 0;
+  state.goals.forEach(g => {
+    const key = `${g.id}_${week}`;
+    const tactics = state.tactics[key] || [];
+    total += tactics.length;
+    done += tactics.filter(t => t.done).length;
+  });
+  if (total === 0) return null;
+  return Math.round(done / total * 100);
+}
+
+function calcAvgScore() {
+  const scores = [];
+  const totalWeeks = getTotalWeeks();
+  const maxWeek = Math.min(getCurrentWeek(), totalWeeks);
+  for (let w = 1; w < maxWeek; w++) {
+    const s = calcWeekScore(w);
+    if (s !== null) scores.push(s);
+  }
+  if (scores.length === 0) return null;
+  return Math.round(scores.reduce((a,b) => a+b, 0) / scores.length);
+}
+
+function renderCycleProgress() {
+  const week = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+  const pct = Math.min(100, Math.round(((week - 1) / totalWeeks) * 100));
+  const bar = document.getElementById('cycleProgressBar');
+  bar.style.width = pct + '%';
+  if (week > totalWeeks) bar.classList.add('complete');
+  else bar.classList.remove('complete');
+
+  const label = week > totalWeeks
+    ? '🏆 Цикл завершён!'
+    : `Неделя ${week} из ${totalWeeks} (${pct}% времени прошло)`;
+  document.getElementById('cycleProgressText').textContent = label;
+}
+
+function renderGoals() {
+  const grid = document.getElementById('goalsGrid');
+  grid.innerHTML = '';
+  if (state.goals.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:32px;">Добавьте цели для начала работы 🎯</p>';
+    return;
+  }
+  const week = getCurrentWeek();
+  state.goals.forEach((goal, idx) => {
+    const card = document.createElement('div');
+    card.className = 'goal-card';
+    card.dataset.color = idx % 5;
+
+    const progress = goal.target > 0 ? Math.min(100, Math.round(goal.current / goal.target * 100)) : 0;
+    
+    let weekTacticsCount = 0, weekDoneCount = 0;
+    const wKey = `${goal.id}_${week}`;
+    const wTactics = state.tactics[wKey] || [];
+    weekTacticsCount = wTactics.length;
+    weekDoneCount = wTactics.filter(t => t.done).length;
+
+    card.innerHTML = `
+      <div class="goal-header">
+        <div class="goal-title">${escHtml(goal.name)}</div>
+        <div class="goal-actions">
+          <button onclick="editGoal(${idx})" title="Редактировать">✏️</button>
+          <button onclick="deleteGoal(${idx})" title="Удалить">🗑</button>
+        </div>
+      </div>
+      ${goal.metric ? `
+      <div class="goal-metric">
+        <span>${escHtml(goal.metric)}:</span>
+        <input type="number" value="${goal.current}" onchange="updateGoalProgress(${idx}, this.value)" style="width:80px">
+        <span>/ ${goal.target}</span>
+        <span style="margin-left:auto;font-weight:700;color:${progress >= 100 ? '#047857' : 'var(--text-dim)'}">${progress}%</span>
+      </div>
+      <div class="goal-progress-bar"><div class="fill" style="width:${progress}%"></div></div>
+      ` : ''}
+      <div class="goal-tactics-preview">
+        📋 Неделя ${week}: ${weekDoneCount}/${weekTacticsCount} тактик выполнено
+      </div>
+    `;
+    card.querySelector('.goal-title').onclick = () => editGoal(idx);
+    grid.appendChild(card);
+  });
+}
+
+function openAddGoal() {
+  document.getElementById('goalModalTitle').textContent = 'Добавить цель';
+  document.getElementById('goalNameInput').value = '';
+  document.getElementById('goalMetricInput').value = '';
+  document.getElementById('goalTargetInput').value = '';
+  document.getElementById('goalCurrentInput').value = '0';
+  document.getElementById('goalModalSave').onclick = saveNewGoal;
+  document.getElementById('goalModal').classList.add('active');
+  document.getElementById('goalNameInput').focus();
+}
+
+function editGoal(idx) {
+  const g = state.goals[idx];
+  document.getElementById('goalModalTitle').textContent = 'Редактировать цель';
+  document.getElementById('goalNameInput').value = g.name;
+  document.getElementById('goalMetricInput').value = g.metric || '';
+  document.getElementById('goalTargetInput').value = g.target || '';
+  document.getElementById('goalCurrentInput').value = g.current || 0;
+  document.getElementById('goalModalSave').onclick = () => saveEditGoal(idx);
+  document.getElementById('goalModal').classList.add('active');
+  document.getElementById('goalNameInput').focus();
+}
+
+function closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); }
+
+function saveNewGoal() {
+  const name = document.getElementById('goalNameInput').value.trim();
+  if (!name) return;
+  state.goals.push({
+    id: Date.now().toString(36),
+    name,
+    metric: document.getElementById('goalMetricInput').value.trim(),
+    target: parseFloat(document.getElementById('goalTargetInput').value) || 0,
+    current: parseFloat(document.getElementById('goalCurrentInput').value) || 0
+  });
+  saveState();
+  closeGoalModal();
+  renderAll();
+}
+
+function saveEditGoal(idx) {
+  state.goals[idx].name = document.getElementById('goalNameInput').value.trim() || state.goals[idx].name;
+  state.goals[idx].metric = document.getElementById('goalMetricInput').value.trim();
+  state.goals[idx].target = parseFloat(document.getElementById('goalTargetInput').value) || 0;
+  state.goals[idx].current = parseFloat(document.getElementById('goalCurrentInput').value) || 0;
+  saveState();
+  closeGoalModal();
+  renderAll();
+}
+
+function deleteGoal(idx) {
+  if (!confirm(`Удалить цель "${state.goals[idx].name}"?`)) return;
+  const goalId = state.goals[idx].id;
+  Object.keys(state.tactics).forEach(key => {
+    if (key.startsWith(goalId + '_')) delete state.tactics[key];
+  });
+  state.goals.splice(idx, 1);
+  saveState();
+  renderAll();
+}
+
+function updateGoalProgress(idx, value) {
+  state.goals[idx].current = parseFloat(value) || 0;
+  saveState();
+  renderGoals();
+  renderStats();
+}
+
+function renderWeekTactics() {
+  const week = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+  if (week > totalWeeks) return;
+  
+  const container = document.getElementById('tacticsContainer');
+  container.innerHTML = '';
+
+  const wd = getWeekDates(week);
+  document.getElementById('weekTitle').textContent =
+    `Неделя ${week} из ${totalWeeks} — Тактики (${formatDate(wd.start)} – ${formatDate(wd.end)})`;
+
+  if (state.goals.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:24px;">Сначала добавьте цели выше 🎯</p>';
+    document.getElementById('weekScoreValue').textContent = '—';
+    document.getElementById('weekTacticsCount').textContent = '0 / 0';
+    return;
+  }
+
+  state.goals.forEach((goal, gIdx) => {
+    const key = `${goal.id}_${week}`;
+    if (!state.tactics[key]) state.tactics[key] = [];
+    const tactics = state.tactics[key];
+    const color = GOAL_COLORS[gIdx % 5];
+
+    const group = document.createElement('div');
+    group.className = 'tactic-group';
+    group.innerHTML = `
+      <div class="tactic-group-title">
+        <span class="dot" style="background:${color}"></span>
+        ${escHtml(goal.name)}
+      </div>
+      <ul class="tactic-list" id="tactics_${key}"></ul>
+      <div class="add-tactic">
+        <input type="text" placeholder="Добавить тактику..." id="input_${key}" onkeydown="if(event.key==='Enter')addTactic('${key}')">
+        <button onclick="addTactic('${key}')">+ Добавить</button>
+      </div>
+    `;
+    container.appendChild(group);
+
+    const list = group.querySelector('ul');
+    tactics.forEach((t, tIdx) => {
+      const li = document.createElement('li');
+      li.className = 'tactic-item';
+      li.innerHTML = `
+        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTactic('${key}', ${tIdx})">
+        <span class="tactic-text ${t.done ? 'done' : ''}">${escHtml(t.text)}</span>
+        <button class="delete-btn" onclick="deleteTactic('${key}', ${tIdx})">×</button>
+      `;
+      list.appendChild(li);
+    });
+  });
+
+  updateWeekScore();
+}
+
+function addTactic(key) {
+  const input = document.getElementById('input_' + key);
+  const text = input.value.trim();
+  if (!text) return;
+  if (!state.tactics[key]) state.tactics[key] = [];
+  state.tactics[key].push({ id: Date.now().toString(36), text, done: false });
+  input.value = '';
+  saveState();
+  renderWeekTactics();
+  renderGoals();
+  renderStats();
+}
+
+function toggleTactic(key, idx) {
+  state.tactics[key][idx].done = !state.tactics[key][idx].done;
+  saveState();
+  renderWeekTactics();
+  renderGoals();
+  renderStats();
+  renderHeatmap();
+}
+
+function deleteTactic(key, idx) {
+  state.tactics[key].splice(idx, 1);
+  saveState();
+  renderWeekTactics();
+  renderGoals();
+  renderStats();
+}
+
+function updateWeekScore() {
+  const week = getCurrentWeek();
+  const score = calcWeekScore(week);
+  const el = document.getElementById('weekScoreValue');
+  const countEl = document.getElementById('weekTacticsCount');
+  
+  let total = 0, done = 0;
+  state.goals.forEach(g => {
+    const k = `${g.id}_${week}`;
+    const t = state.tactics[k] || [];
+    total += t.length;
+    done += t.filter(x => x.done).length;
+  });
+
+  el.textContent = score !== null ? score + '%' : '—';
+  el.style.color = score === null ? '' : score >= 85 ? '#047857' : score >= 70 ? '#b45309' : '#b91c1c';
+  countEl.textContent = `${done} / ${total}`;
+}
+
+function renderHeatmap() {
+  const heatmap = document.getElementById('heatmap');
+  heatmap.innerHTML = '';
+  const currentWeek = getCurrentWeek();
+  const totalWeeks = getTotalWeeks();
+
+  for (let w = 1; w <= totalWeeks + 1; w++) {
+    const cell = document.createElement('div');
+    const score = calcWeekScore(w);
+    cell.className = 'heatmap-cell';
+    
+    if (w === totalWeeks + 1) {
+      cell.classList.add('celebration');
+      cell.innerHTML = '<span class="week-num">🎉</span><span class="score">Финиш</span>';
+    } else if (w < currentWeek && score !== null) {
+      if (score >= 85) cell.classList.add('high');
+      else if (score >= 70) cell.classList.add('medium');
+      else cell.classList.add('low');
+      cell.innerHTML = `<span class="week-num">Н${w}</span><span class="score">${score}%</span>`;
+    } else if (w > currentWeek || (w === currentWeek && score === null)) {
+      cell.classList.add('empty');
+      cell.innerHTML = `<span class="week-num">Н${w}</span><span class="score">—</span>`;
+    } else {
+      cell.innerHTML = `<span class="week-num">Н${w}</span><span class="score">${score !== null ? score + '%' : '—'}</span>`;
+    }
+    
+    if (w <= totalWeeks) {
+      cell.onclick = () => {
+        state.manualOverride = true;
+        state.currentWeek = w;
+        state.earlyFinish = false;
+        updateWeekSelect();
+        saveState();
+        renderAll();
+      };
+    }
+    heatmap.appendChild(cell);
+  }
+}
+
+function renderCelebration() {
+  const screen = document.getElementById('celebrationScreen');
+  const totalWeeks = getTotalWeeks();
+  
+  let scores = [];
+  for (let w = 1; w <= totalWeeks; w++) {
+    const s = calcWeekScore(w);
+    if (s !== null) scores.push(s);
+  }
+  const avgScore = scores.length > 0 ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length) : 0;
+  const weeksAbove85 = scores.filter(s => s >= 85).length;
+  
+  let totalTactics = 0, totalDone = 0;
+  Object.values(state.tactics).forEach(arr => {
+    totalTactics += arr.length;
+    totalDone += arr.filter(t => t.done).length;
+  });
+
+  const bestWeek = scores.length > 0 ? Math.max(...scores) : 0;
+  const worstWeek = scores.length > 0 ? Math.min(...scores) : 0;
+
+  let goalsHtml = '';
+  state.goals.forEach((g, i) => {
+    const progress = g.target > 0 ? Math.min(100, Math.round(g.current / g.target * 100)) : 0;
+    goalsHtml += `
+      <div class="archive-item">
+        <span class="name" style="color:${GOAL_COLORS[i % 5]}">${escHtml(g.name)}</span>
+        ${g.metric ? `<span class="dates">${escHtml(g.metric)}: ${g.current} / ${g.target}</span>` : ''}
+        <span class="score-badge ${progress >= 100 ? 'high' : progress >= 70 ? 'medium' : 'low'}">${progress}%</span>
+      </div>
+    `;
+  });
+
+  const earlyLabel = state.earlyFinish ? ' (досрочно)' : '';
+
+  screen.innerHTML = `
+    <h2>🏆 Цикл завершён${earlyLabel}!</h2>
+    <p class="sub">Время праздновать и подводить итоги</p>
+    
+    <div class="final-stats">
+      <div class="final-stat">
+        <div class="val" style="color:#047857">${avgScore}%</div>
+        <div class="lbl">Средний Score</div>
+      </div>
+      <div class="final-stat">
+        <div class="val" style="color:var(--accent)">${weeksAbove85}/${totalWeeks}</div>
+        <div class="lbl">Недель ≥ 85%</div>
+      </div>
+      <div class="final-stat">
+        <div class="val" style="color:#1d4ed8">${totalDone}/${totalTactics}</div>
+        <div class="lbl">Тактик выполнено</div>
+      </div>
+      <div class="final-stat">
+        <div class="val" style="color:#047857">${bestWeek}%</div>
+        <div class="lbl">Лучшая неделя</div>
+      </div>
+      <div class="final-stat">
+        <div class="val" style="color:#b91c1c">${worstWeek}%</div>
+        <div class="lbl">Слабейшая неделя</div>
+      </div>
+    </div>
+
+    ${goalsHtml ? `
+    <div style="text-align:left;margin:24px 0">
+      <h3 style="margin-bottom:12px">📊 Итоги по целям:</h3>
+      ${goalsHtml}
+    </div>
+    ` : ''}
+
+    <div class="reflection-box">
+      <h3>🪞 Рефлексия:</h3>
+      
+      <div class="q-label">Что получилось лучше всего?</div>
+      <textarea id="refl_q1" onchange="saveReflection('q1', this.value)"
+        placeholder="Запиши свои главные победы...">${state.reflections.q1 || ''}</textarea>
+      
+      <div class="q-label">Что было самым сложным?</div>
+      <textarea id="refl_q2" onchange="saveReflection('q2', this.value)"
+        placeholder="Какие препятствия возникли?">${state.reflections.q2 || ''}</textarea>
+      
+      <div class="q-label">Какие уроки ты извлёк?</div>
+      <textarea id="refl_q3" onchange="saveReflection('q3', this.value)"
+        placeholder="Что будешь делать иначе в следующем цикле?">${state.reflections.q3 || ''}</textarea>
+      
+      <div class="q-label">Цели на следующий цикл?</div>
+      <textarea id="refl_q4" onchange="saveReflection('q4', this.value)"
+        placeholder="Какие цели возьмёшь в следующий цикл?">${state.reflections.q4 || ''}</textarea>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
+      <button class="btn btn-gold" onclick="archiveAndNew()">🚀 Архивировать и начать новый цикл</button>
+      <button class="btn" onclick="exportData()">📥 Экспортировать результаты</button>
+      ${state.earlyFinish ? `<button class="btn btn-success" onclick="undoEarlyFinish()">↩️ Продолжить цикл</button>` : ''}
+    </div>
+  `;
+}
+
+function saveReflection(key, value) {
+  state.reflections[key] = value;
+  saveState();
+}
+
+function undoEarlyFinish() {
+  if (!confirm('Вернуться к циклу и продолжить работу?')) return;
+  state.earlyFinish = false;
+  state.manualOverride = false;
+  state.currentWeek = 'auto';
+  updateWeekSelect();
+  saveState();
+  renderAll();
+}
+
+function earlyFinish() {
+  const totalWeeks = getTotalWeeks();
+  const currentWeek = getCurrentWeek();
+  if (currentWeek > totalWeeks) {
+    alert('Цикл уже завершён!');
+    return;
+  }
+  if (!confirm(`Завершить цикл досрочно на неделе ${currentWeek} из ${totalWeeks}?`)) return;
+  state.earlyFinish = true;
+  state.manualOverride = true;
+  state.currentWeek = totalWeeks + 1;
+  updateWeekSelect();
+  saveState();
+  renderAll();
+}
+
+function archiveAndNew() {
+  if (!confirm('Архивировать текущий цикл и начать новый?')) return;
+  
+  const totalWeeks = getTotalWeeks();
+  let scores = [];
+  for (let w = 1; w <= totalWeeks; w++) {
+    const s = calcWeekScore(w);
+    if (s !== null) scores.push(s);
+  }
+  const avgScore = scores.length > 0 ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length) : 0;
+
+  state.archive.push({
+    name: state.cycleName || 'Без названия',
+    startDate: state.cycleStart,
+    endDate: state.cycleEnd,
+    avgScore,
+    goals: JSON.parse(JSON.stringify(state.goals)),
+    tactics: JSON.parse(JSON.stringify(state.tactics)),
+    reflections: { ...state.reflections },
+    scores,
+    totalWeeks,
+    earlyFinish: state.earlyFinish
+  });
+
+  const today = new Date().toISOString().slice(0, 10);
+  state.cycleName = '';
+  state.cycleStart = today;
+  state.cycleEnd = addDays(new Date(), 83).toISOString().slice(0, 10);
+  state.currentWeek = 'auto';
+  state.manualOverride = false;
+  state.earlyFinish = false;
+  state.goals = [];
+  state.tactics = {};
+  state.reflections = {};
+  
+  saveState();
+  init();
+}
+
+function renderArchive() {
+  const section = document.getElementById('archiveSection');
+  const list = document.getElementById('archiveList');
+  
+  if (!state.archive || state.archive.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  list.innerHTML = '';
+  
+  state.archive.forEach((cycle, idx) => {
+    const item = document.createElement('div');
+    item.className = 'archive-item';
+    const scoreClass = cycle.avgScore >= 85 ? 'high' : cycle.avgScore >= 70 ? 'medium' : 'low';
+    const earlyLabel = cycle.earlyFinish ? ' (досрочно)' : '';
+    item.innerHTML = `
+      <span class="name">${escHtml(cycle.name)}${earlyLabel}</span>
+      <span class="dates">${formatDate(cycle.startDate)} – ${formatDate(cycle.endDate)} • ${cycle.totalWeeks} нед.</span>
+      <span class="score-badge ${scoreClass}">${cycle.avgScore}% avg</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cycle-${state.cycleName || 'data'}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData() { document.getElementById('importInput').click(); }
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.goals) {
+        state = data;
+        if (!state.archive) state.archive = [];
+        if (!state.reflections) state.reflections = {};
+        saveState();
+        init();
+      } else {
+        alert('Неверный формат файла');
+      }
+    } catch(err) { alert('Ошибка чтения файла'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAll() {
+  if (!confirm('Удалить ВСЕ данные включая архив и начать заново?')) return;
+  state = defaultState();
+  saveState();
+  init();
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGoalModal(); });
+document.getElementById('goalModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('goalModal')) closeGoalModal();
+});
+
+init();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a14d2979580398f4',t:'MTc4Mjk5MDE4Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

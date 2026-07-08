@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Утренний дашборд · Магия утра</title>
+<style>
+  :root{
+    --bg: #2b1b3d;
+    --card: rgba(255,255,255,0.14);
+    --card2: rgba(255,255,255,0.22);
+    --accent: #ffb347;
+    --accent2: #ff6f61;
+    --green: #7cd992;
+    --red: #ff5f6d;
+    --text: #fff8f0;
+    --muted: #f0d9c8;
+    --border: rgba(255,255,255,0.28);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg,
+      #241436 0%,
+      #4a2168 14%,
+      #7c2f6b 28%,
+      #b93d63 44%,
+      #e8593f 60%,
+      #f68a3c 74%,
+      #ffb648 88%,
+      #ffd97a 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    padding: 24px 16px 60px;
+    min-height:100vh;
+  }
+  .wrap{max-width: 960px; margin: 0 auto;}
+  header{
+    text-align:center;
+    margin-bottom: 24px;
+  }
+  header h1{
+    font-size: 1.7rem;
+    margin: 0 0 4px;
+    background: linear-gradient(90deg, #ffe08a, #ff9a5a, #ff6f8d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 24px rgba(255,150,80,.25);
+  }
+  header p{color: var(--muted); margin:0; font-size:.9rem; text-shadow: 0 1px 4px rgba(0,0,0,.25);}
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 720px){ .grid{grid-template-columns: repeat(2,1fr);} }
+
+  .stat{
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    text-align:center;
+    box-shadow: 0 8px 24px rgba(60,10,40,.18);
+  }
+  .stat .num{font-size: 1.6rem; font-weight:700; text-shadow: 0 1px 6px rgba(0,0,0,.2);}
+  .stat .lbl{font-size:.72rem; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.03em;}
+  .stat.flame .num{color: #ffcf6b;}
+  .stat.good .num{color: #a8f0b6;}
+  .stat.blue .num{color: #ffb0a0;}
+
+  .card{
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 30px rgba(60,10,40,.18);
+  }
+  .card h2{
+    font-size: 1.05rem;
+    margin: 0 0 12px;
+    display:flex; align-items:center; gap:8px;
+    text-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  .card h2 .badge{
+    font-size:.68rem;
+    background: var(--card2);
+    color: var(--text);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight:400;
+  }
+
+  .today-times{
+    display:flex; gap: 14px; flex-wrap:wrap; margin-bottom: 14px;
+  }
+  .time-pill{
+    flex:1; min-width:140px;
+    background: var(--card2);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .time-pill .icon{font-size:1.4rem;}
+  .time-pill .val{font-size:1.3rem; font-weight:700;}
+  .time-pill .lbl{font-size:.75rem; color:var(--muted);}
+
+  .checklist{list-style:none; margin:0; padding:0;}
+  .checklist li{
+    display:flex; align-items:center; gap:10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size:.92rem;
+  }
+  .checklist li:last-child{border-bottom:none;}
+  .checklist input[type=checkbox]{
+    width:20px; height:20px; accent-color: var(--accent);
+    cursor:pointer; flex-shrink:0;
+  }
+  .checklist label{cursor:pointer; flex:1;}
+  .checklist .tag{font-size:.68rem; color: var(--muted); background:var(--card2); padding:2px 7px; border-radius:100px;}
+
+  textarea{
+    width:100%; min-height: 60px; resize: vertical;
+    background: var(--card2); border:1px solid var(--border); border-radius:10px;
+    color: var(--text); padding:10px; font-size:.88rem; font-family:inherit;
+  }
+
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .row.between{justify-content:space-between;}
+
+  button{
+    background: linear-gradient(90deg, #ffb347, #ff7a59);
+    color: #3a1200;
+    border:none; border-radius: 10px;
+    padding: 9px 14px;
+    font-weight:700; font-size:.85rem;
+    cursor:pointer;
+    box-shadow: 0 4px 14px rgba(255,110,60,.35);
+  }
+  button.secondary{
+    background: var(--card2); color: var(--text); border:1px solid var(--border);
+    box-shadow:none;
+  }
+  button.danger{ background: linear-gradient(90deg, #ff5f6d, #c23b5a); color:#3a0510; }
+  button:disabled{opacity:.4; cursor:not-allowed;}
+
+  .savers-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--border); gap: 10px;
+  }
+  .savers-item:last-child{border-bottom:none;}
+  .savers-item .name{font-weight:600; font-size:.9rem;}
+  .savers-item .desc{font-size:.76rem; color:var(--muted);}
+  .savers-item .status{font-size:.72rem; padding:3px 9px; border-radius:100px;}
+  .status.locked{background: rgba(255,255,255,.12); color:var(--muted);}
+  .status.unlocked{background: rgba(255,255,255,.28); color: #fff3d0; font-weight:600;}
+
+  .settings-grid{display:grid; grid-template-columns: 1fr 1fr; gap: 12px;}
+  @media (max-width: 560px){ .settings-grid{grid-template-columns: 1fr;} }
+  .field label{display:block; font-size:.78rem; color:var(--muted); margin-bottom:4px;}
+  .field input{
+    width:100%; background: var(--card2); border:1px solid var(--border); border-radius:10px;
+    color: var(--text); padding: 9px 10px; font-size:.9rem;
+  }
+
+  .history-item{
+    display:flex; align-items:center; gap:10px;
+    padding: 8px 0; border-bottom:1px solid var(--border); font-size:.85rem;
+  }
+  .history-item:last-child{border-bottom:none;}
+  .history-item .dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .dot.ok{background: #7cd992; box-shadow: 0 0 8px rgba(124,217,146,.6);}
+  .dot.no{background: #ff5f6d; box-shadow: 0 0 8px rgba(255,95,109,.6);}
+  .dot.none{background: rgba(255,255,255,.25);}
+  .history-item .d{color:var(--muted); width:78px; flex-shrink:0;}
+  .history-item .note{color: var(--muted); font-size:.8rem; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  .info{
+    font-size: .82rem; color: var(--muted); line-height:1.5;
+  }
+  .info b{color: var(--text);}
+  .footer-note{
+    text-align:center; font-size:.75rem; color: var(--muted); margin-top: 10px;
+  }
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background: linear-gradient(90deg, #ffb347, #ff7a59); color:#3a1200; padding: 10px 18px; border-radius: 10px;
+    font-weight:700; font-size:.85rem; opacity:0; pointer-events:none; transition: opacity .25s ease;
+    box-shadow: 0 6px 24px rgba(255,110,60,.4);
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🌅 Дашборд раннего подъёма</h1>
+    <p>Твой путь к 5:00 — маленькими фиксированными шагами, без резких рывков</p>
+  </header>
+
+  <div class="grid">
+    <div class="stat flame"><div class="num" id="streakNum">0</div><div class="lbl">🔥 streak, дней</div></div>
+    <div class="stat good"><div class="num" id="successRate">0%</div><div class="lbl">успех за 14 дней</div></div>
+    <div class="stat blue"><div class="num" id="daysToGoal">–</div><div class="lbl">дней до цели 05:00</div></div>
+    <div class="stat"><div class="num" id="totalDays">0</div><div class="lbl">дней в пути</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Сегодня <span class="badge" id="todayDate">–</span></h2>
+    <div class="today-times">
+      <div class="time-pill">
+        <div class="icon">🌙</div>
+        <div><div class="val" id="todayBedtime">–</div><div class="lbl">целевой отбой сегодня</div></div>
+      </div>
+      <div class="time-pill">
+        <div class="icon">⏰</div>
+        <div><div class="val" id="todayWake">–</div><div class="lbl">целевой подъём завтра утром</div></div>
+      </div>
+      <div class="time-pill">
+        <div class="icon">📶</div>
+        <div><div class="val" id="stepLevel">–</div><div class="lbl">текущий шаг</div></div>
+      </div>
+    </div>
+
+    <ul class="checklist" id="baseChecklist"></ul>
+    <div id="saversChecklistWrap"></div>
+
+    <div style="margin-top:14px;">
+      <label style="font-size:.8rem; color:var(--muted); display:block; margin-bottom:6px;">Заметка / рефлексия за день</label>
+      <textarea id="dayNote" placeholder="Как прошло утро? Что помогло, что помешало?"></textarea>
+    </div>
+
+    <div class="row between" style="margin-top:14px;">
+      <button class="secondary" id="stepBackBtn">⏪ Было тяжело — задержаться на этом шаге</button>
+      <button id="saveDayBtn">✅ Сохранить сегодняшний день</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Утренний ритуал (SAVERS) <span class="badge">добавляем по одному</span></h2>
+    <p class="info">Начинаем только с подъёма и серии. Следующий элемент добавляй, когда предыдущий перестал требовать усилия воли — не раньше.</p>
+    <div id="saversList"></div>
+    <button id="unlockNextBtn" style="margin-top:12px;">➕ Добавить следующий элемент</button>
+  </div>
+
+  <div class="card">
+    <h2>История</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Настройки плана</h2>
+    <div class="settings-grid">
+      <div class="field"><label>Дата старта</label><input type="date" id="startDate"></div>
+      <div class="field"><label>Текущий отбой (на старте)</label><input type="time" id="curBedtime"></div>
+      <div class="field"><label>Текущий подъём (на старте)</label><input type="time" id="curWake"></div>
+      <div class="field"><label>Целевой подъём</label><input type="time" id="targetWake"></div>
+      <div class="field"><label>Целевой отбой</label><input type="time" id="targetBedtime"></div>
+      <div class="field"><label>Шаг, минут</label><input type="number" id="stepMinutes" min="5" step="5"></div>
+      <div class="field"><label>Держать шаг, дней</label><input type="number" id="stepDays" min="1" step="1"></div>
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <button id="saveSettingsBtn">Сохранить настройки</button>
+      <button class="danger" id="resetBtn">Сбросить всё</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Памятка</h2>
+    <p class="info">
+      <b>Правило «если — то»:</b> если будильник прозвенел — я сразу встаю и ставлю ноги на пол, решение не обсуждается лёжа.<br><br>
+      <b>Правило двух дней:</b> один пропуск — случайность, ничего страшного. Два пропуска подряд — сигнал вернуться на шаг назад, а не бросать всё.<br><br>
+      <b>Телефон:</b> заряжается вне спальни каждую ночь. Это не сила воли, а физическое устранение соблазна.<br><br>
+      <b>Серия сериала</b> — награда сразу после подъёма (temptation bundling). Ставь таймер, чтобы не «расползалась».
+    </p>
+  </div>
+
+  <div class="footer-note">Данные хранятся локально в этом браузере. Для надёжного сохранения между сессиями открой файл напрямую в браузере (не только в превью).</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'morningDashboardData_v1';
+  const SAVERS_ORDER = [
+    {id:'silence', name:'🧘 Тишина / медитация', desc:'5 минут тишины, дыхание, никакой суеты'},
+    {id:'affirm', name:'💬 Аффирмации', desc:'Короткие фразы о том, кем ты становишься'},
+    {id:'visual', name:'🎯 Визуализация', desc:'Не результата, а процесса — как именно пройдёт день'},
+    {id:'sport', name:'🏃 Спорт / зарядка', desc:'Даже 5-10 минут разминки'},
+    {id:'read', name:'📖 Чтение', desc:'Пара страниц полезной книги'},
+    {id:'journal', name:'📓 Дневник', desc:'Пара строк: мысли, планы, благодарность'}
+  ];
+
+  let mem = null; // fallback in-memory store if localStorage unavailable
+  function loadRaw(){
+    try{
+      const s = localStorage.getItem(STORAGE_KEY);
+      if(s) return JSON.parse(s);
+    }catch(e){}
+    return mem;
+  }
+  function saveRaw(data){
+    mem = data;
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+  }
+
+  function defaultData(){
+    const today = new Date();
+    const iso = today.toISOString().slice(0,10);
+    return {
+      settings: {
+        startDate: iso,
+        curBedtime: '00:00',
+        curWake: '07:00',
+        targetWake: '05:00',
+        targetBedtime: '22:00',
+        stepMinutes: 15,
+        stepDays: 4,
+        stepBackOffsetDays: 0
+      },
+      unlocked: [], // {id, dateUnlocked}
+      logs: {} // date -> {wokeOnTime,wentToBedOnTime,phoneOut,seriesWatched, saversChecks:{id:bool}, note}
+    };
+  }
+
+  let data = loadRaw() || defaultData();
+  if(!data.settings) data = defaultData();
+
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+  function toNightMin(hhmm){
+    const [h,m] = hhmm.split(':').map(Number);
+    let val = (h<18) ? (h*60+m+1440) : (h*60+m);
+    return val - 1080; // reference 18:00 = 0
+  }
+  function fromNightMin(val){
+    let actual = ((val+1080)%1440+1440)%1440;
+    let h = Math.floor(actual/60), m = actual%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+  }
+  function daysBetween(d1, d2){
+    const a = new Date(d1+'T00:00:00');
+    const b = new Date(d2+'T00:00:00');
+    return Math.round((b-a)/86400000);
+  }
+
+  function computeSchedule(forDateISO){
+    const s = data.settings;
+    const dSince = Math.max(0, daysBetween(s.startDate, forDateISO)) + (s.stepBackOffsetDays||0);
+    const stepIdx = Math.floor(dSince / s.stepDays) + 1; // step 1 begins day 0
+    const shift = stepIdx * s.stepMinutes;
+
+    const curBed = toNightMin(s.curBedtime);
+    const curWake = toNightMin(s.curWake);
+    const tgtBed = toNightMin(s.targetBedtime);
+    const tgtWake = toNightMin(s.targetWake);
+
+    const bedShiftNeeded = curBed - tgtBed;
+    const wakeShiftNeeded = curWake - tgtWake;
+    const maxShiftNeeded = Math.max(bedShiftNeeded, wakeShiftNeeded, 1);
+
+    const appliedShift = Math.min(shift, maxShiftNeeded);
+
+    const bedVal = Math.max(curBed - appliedShift, tgtBed);
+    const wakeVal = Math.max(curWake - appliedShift, tgtWake);
+
+    const reached = appliedShift >= maxShiftNeeded;
+    const totalSteps = Math.ceil(maxShiftNeeded / s.stepMinutes);
+    const stepsRemaining = Math.max(0, totalSteps - stepIdx);
+    const daysToGoal = reached ? 0 : stepsRemaining * s.stepDays + (s.stepDays - (dSince % s.stepDays));
+
+    return {
+      bedtime: fromNightMin(bedVal),
+      wake: fromNightMin(wakeVal),
+      stepIdx: Math.min(stepIdx, totalSteps),
+      totalSteps,
+      reached,
+      daysToGoal
+    };
+  }
+
+  // ---------- Rendering ----------
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  function fmtDateHuman(iso){
+    const d = new Date(iso+'T00:00:00');
+    return d.toLocaleDateString('ru-RU', {day:'numeric', month:'long', weekday:'short'});
+  }
+
+  function renderSettings(){
+    const s = data.settings;
+    document.getElementById('startDate').value = s.startDate;
+    document.getElementById('curBedtime').value = s.curBedtime;
+    document.getElementById('curWake').value = s.curWake;
+    document.getElementById('targetWake').value = s.targetWake;
+    document.getElementById('targetBedtime').value = s.targetBedtime;
+    document.getElementById('stepMinutes').value = s.stepMinutes;
+    document.getElementById('stepDays').value = s.stepDays;
+  }
+
+  function getLog(dateISO){
+    if(!data.logs[dateISO]){
+      data.logs[dateISO] = {wokeOnTime:false, wentToBedOnTime:false, phoneOut:false, seriesWatched:false, saversChecks:{}, note:''};
+    }
+    return data.logs[dateISO];
+  }
+
+  function renderToday(){
+    const today = todayISO();
+    document.getElementById('todayDate').textContent = fmtDateHuman(today);
+    const sched = computeSchedule(today);
+    document.getElementById('todayBedtime').textContent = sched.bedtime;
+    document.getElementById('todayWake').textContent = sched.wake;
+    document.getElementById('stepLevel').textContent = sched.reached ? 'Цель достигнута 🎉' : ('Шаг ' + sched.stepIdx + ' из ' + sched.totalSteps);
+
+    const log = getLog(today);
+    document.getElementById('dayNote').value = log.note || '';
+
+    const baseList = document.getElementById('baseChecklist');
+    const baseItems = [
+      {key:'wentToBedOnTime', label:'🌙 Легла спать по плану (вчера вечером)'},
+      {key:'phoneOut', label:'📵 Телефон заряжался вне спальни'},
+      {key:'wokeOnTime', label:'⏰ Встала по плану сегодня утром'},
+      {key:'seriesWatched', label:'📺 Наградила себя серией (по таймеру!)'}
+    ];
+    baseList.innerHTML = '';
+    baseItems.forEach(item=>{
+      const li = document.createElement('li');
+      const id = 'chk_'+item.key;
+      li.innerHTML = `<input type="checkbox" id="${id}" ${log[item.key] ? 'checked':''}>
+        <label for="${id}">${item.label}</label>`;
+      li.querySelector('input').addEventListener('change', e=>{
+        log[item.key] = e.target.checked;
+      });
+      baseList.appendChild(li);
+    });
+
+    const saversWrap = document.getElementById('saversChecklistWrap');
+    const unlockedIds = data.unlocked.map(u=>u.id);
+    if(unlockedIds.length){
+      const ul = document.createElement('ul');
+      ul.className = 'checklist';
+      unlockedIds.forEach(id=>{
+        const meta = SAVERS_ORDER.find(x=>x.id===id);
+        if(!meta) return;
+        const cid = 'sv_'+id;
+        const checked = log.saversChecks[id] ? 'checked' : '';
+        const li = document.createElement('li');
+        li.innerHTML = `<input type="checkbox" id="${cid}" ${checked}>
+          <label for="${cid}">${meta.name}</label>`;
+        li.querySelector('input').addEventListener('change', e=>{
+          log.saversChecks[id] = e.target.checked;
+        });
+        ul.appendChild(li);
+      });
+      saversWrap.innerHTML = '';
+      saversWrap.appendChild(ul);
+    } else {
+      saversWrap.innerHTML = '<p class="info">Пока только базовые пункты. Добавь первый элемент ритуала в блоке ниже, когда будешь готова.</p>';
+    }
+  }
+
+  function renderSavers(){
+    const list = document.getElementById('saversList');
+    list.innerHTML = '';
+    const unlockedIds = data.unlocked.map(u=>u.id);
+    SAVERS_ORDER.forEach(item=>{
+      const unlocked = unlockedIds.includes(item.id);
+      const unlockInfo = data.unlocked.find(u=>u.id===item.id);
+      const div = document.createElement('div');
+      div.className = 'savers-item';
+      div.innerHTML = `
+        <div>
+          <div class="name">${item.name}</div>
+          <div class="desc">${item.desc}${unlocked ? ' · добавлено ' + fmtDateHuman(unlockInfo.dateUnlocked) : ''}</div>
+        </div>
+        <div class="status ${unlocked ? 'unlocked':'locked'}">${unlocked ? 'Активно' : 'Заблокировано'}</div>
+      `;
+      list.appendChild(div);
+    });
+    const nextBtn = document.getElementById('unlockNextBtn');
+    nextBtn.disabled = unlockedIds.length >= SAVERS_ORDER.length;
+    nextBtn.textContent = unlockedIds.length >= SAVERS_ORDER.length ? '🎉 Все элементы добавлены' : '➕ Добавить следующий элемент';
+  }
+
+  function renderStats(){
+    const dates = Object.keys(data.logs).sort();
+    // streak: consecutive days ending today/yesterday with wokeOnTime true, counting backward from most recent logged day
+    let streak = 0;
+    let cursor = new Date(todayISO()+'T00:00:00');
+    for(let i=0;i<365;i++){
+      const iso = cursor.toISOString().slice(0,10);
+      const log = data.logs[iso];
+      if(log && log.wokeOnTime){ streak++; cursor.setDate(cursor.getDate()-1); }
+      else break;
+    }
+    document.getElementById('streakNum').textContent = streak;
+
+    // success rate last 14 days
+    let successCount=0, totalCount=0;
+    let c2 = new Date(todayISO()+'T00:00:00');
+    for(let i=0;i<14;i++){
+      const iso = c2.toISOString().slice(0,10);
+      if(data.logs[iso]){ totalCount++; if(data.logs[iso].wokeOnTime) successCount++; }
+      c2.setDate(c2.getDate()-1);
+    }
+    document.getElementById('successRate').textContent = totalCount ? Math.round(successCount/totalCount*100)+'%' : '–';
+
+    const sched = computeSchedule(todayISO());
+    document.getElementById('daysToGoal').textContent = sched.reached ? '🎉' : sched.daysToGoal;
+
+    document.getElementById('totalDays').textContent = Math.max(0, daysBetween(data.settings.startDate, todayISO())+1);
+  }
+
+  function renderHistory(){
+    const wrap = document.getElementById('historyList');
+    const dates = Object.keys(data.logs).sort().reverse();
+    if(!dates.length){
+      wrap.innerHTML = '<p class="info">Пока нет записей. Заполни сегодняшний день и сохрани.</p>';
+      return;
+    }
+    wrap.innerHTML = '';
+    dates.slice(0,30).forEach(iso=>{
+      const log = data.logs[iso];
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      const dotClass = log.wokeOnTime === true ? 'ok' : (Object.keys(log).length ? 'no' : 'none');
+      item.innerHTML = `<div class="dot ${dotClass}"></div>
+        <div class="d">${new Date(iso+'T00:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})}</div>
+        <div class="note">${log.note ? log.note : '—'}</div>`;
+      wrap.appendChild(item);
+    });
+  }
+
+  function renderAll(){
+    renderSettings();
+    renderToday();
+    renderSavers();
+    renderStats();
+    renderHistory();
+  }
+
+  // ---------- Events ----------
+  document.getElementById('saveDayBtn').addEventListener('click', ()=>{
+    const today = todayISO();
+    const log = getLog(today);
+    log.note = document.getElementById('dayNote').value;
+    saveRaw(data);
+    renderStats();
+    renderHistory();
+    toast('День сохранён ✔');
+  });
+
+  document.getElementById('stepBackBtn').addEventListener('click', ()=>{
+    data.settings.stepBackOffsetDays = (data.settings.stepBackOffsetDays||0) - data.settings.stepDays;
+    saveRaw(data);
+    renderAll();
+    toast('Ок, задержались на этом шаге ещё на ' + data.settings.stepDays + ' дн.');
+  });
+
+  document.getElementById('unlockNextBtn').addEventListener('click', ()=>{
+    const unlockedIds = data.unlocked.map(u=>u.id);
+    const next = SAVERS_ORDER.find(x=>!unlockedIds.includes(x.id));
+    if(next){
+      data.unlocked.push({id: next.id, dateUnlocked: todayISO()});
+      saveRaw(data);
+      renderSavers();
+      renderToday();
+      toast('Добавлено: ' + next.name);
+    }
+  });
+
+  document.getElementById('saveSettingsBtn').addEventListener('click', ()=>{
+    const s = data.settings;
+    s.startDate = document.getElementById('startDate').value || s.startDate;
+    s.curBedtime = document.getElementById('curBedtime').value || s.curBedtime;
+    s.curWake = document.getElementById('curWake').value || s.curWake;
+    s.targetWake = document.getElementById('targetWake').value || s.targetWake;
+    s.targetBedtime = document.getElementById('targetBedtime').value || s.targetBedtime;
+    s.stepMinutes = Number(document.getElementById('stepMinutes').value) || s.stepMinutes;
+    s.stepDays = Number(document.getElementById('stepDays').value) || s.stepDays;
+    saveRaw(data);
+    renderAll();
+    toast('Настройки сохранены ✔');
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(confirm('Точно сбросить весь прогресс и настройки?')){
+      data = defaultData();
+      saveRaw(data);
+      renderAll();
+      toast('Всё сброшено');
+    }
+  });
+
+  renderAll();
+})();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a14b78897d50f10b',t:'MTc4Mjk3MjQ1Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a14d3298a9f798f4',t:'MTc4Mjk5MDU2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

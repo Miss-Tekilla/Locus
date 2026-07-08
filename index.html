@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моя Система</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --sidebar: #ffffff;
+      --text: #1f2937;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --border: #e5e7eb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+    }
+
+    .logo {
+      padding: 24px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--accent);
+    }
+
+    .nav {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #4b5563;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: #f3f4f6;
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .nav-item.active svg {
+      fill: #ffffff;
+    }
+    
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      fill: #6b7280;
+      transition: fill 0.2s;
+    }
+
+    /* Content Area */
+    .content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+      }
+      .logo {
+        border-bottom: none;
+        padding: 16px 0;
+      }
+      .nav {
+        flex-direction: row;
+        padding: 0;
+      }
+      .nav-item {
+        padding: 8px 12px;
+      }
+      .nav-item span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.83L18.17 20H5.83L12 5.83z"/></svg>
+      Продуктивность
+    </div>
+    <nav class="nav">
+      <a href="#" class="nav-item active" data-src="morning.html">
+        <svg viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8 11.45h2V19h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8zM12 5.5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
+        <span>Магия Утра</span>
+      </a>
+      <a href="#" class="nav-item" data-src="12-week-year.html">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+        <span>12 Недель</span>
+      </a>
+      <a href="#" class="nav-item" data-src="post-schedule.html">
+        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+        <span>График Постов</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <iframe id="app-frame" src="morning.html"></iframe>
+  </main>
+
+  <script>
+    const navItems = document.querySelectorAll('.nav-item');
+    const iframe = document.getElementById('app-frame');
+
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class
+        navItems.forEach(nav => nav.classList.remove('active'));
+        
+        // Add active class
+        item.classList.add('active');
+        
+        // Update iframe
+        const src = item.getAttribute('data-src');
+        iframe.src = src;
+      });
+    });
+  </script>
+</body>
+</html>
